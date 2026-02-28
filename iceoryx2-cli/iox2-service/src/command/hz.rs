@@ -46,7 +46,7 @@ pub(crate) fn hz(options: HzOptions, format: Format) -> Result<()> {
     };
 
     let subscriber = service.subscriber_builder().create()?;
-    let cycle_time = Duration::from_millis(1);
+    let cycle_time = Duration::from_micros(100);
 
     let mut intervals: VecDeque<u128> = VecDeque::new();
     let mut last_msg_time: Option<Instant> = None;
