@@ -20,6 +20,16 @@ use iceoryx2_cli::help_template;
 use iceoryx2_cli::Format;
 use iceoryx2_cli::HelpOptions;
 
+fn parse_non_zero_usize(value: &str) -> std::result::Result<usize, String> {
+    let parsed = value
+        .parse::<usize>()
+        .map_err(|e| format!("invalid value '{value}': {e}"))?;
+    if parsed == 0 {
+        return Err("value must be greater than 0".to_string());
+    }
+    Ok(parsed)
+}
+
 #[derive(Parser)]
 #[command(
     name = "iox2 service",
@@ -389,6 +399,7 @@ pub struct HzOptions {
         short,
         long,
         default_value = "10000",
+        value_parser = parse_non_zero_usize,
         help = "Rolling window size, in # of messages, for calculating rate (default: 10000)."
     )]
     pub window: usize,
