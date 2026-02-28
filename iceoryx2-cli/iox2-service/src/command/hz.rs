@@ -15,10 +15,20 @@ use crate::command::get_pubsub_service_types;
 use anyhow::Result;
 use iceoryx2::prelude::*;
 use iceoryx2::service::builder::{CustomHeaderMarker, CustomPayloadMarker};
+use iceoryx2_cli::Format;
 use std::collections::VecDeque;
 use std::time::{Duration, Instant};
 
-pub(crate) fn hz(options: HzOptions) -> Result<()> {
+#[derive(serde::Serialize)]
+struct HzStats {
+    rate_hz: f64,
+    min_s: f64,
+    max_s: f64,
+    std_dev_s: f64,
+    window: usize,
+}
+
+pub(crate) fn hz(options: HzOptions, format: Format) -> Result<()> {
     let node = NodeBuilder::new()
         .name(&NodeName::new(&options.node_name)?)
         .create::<ipc::Service>()?;
@@ -69,26 +79,19 @@ pub(crate) fn hz(options: HzOptions) -> Result<()> {
                 continue;
             }
             last_printed_msg_time = last_msg_time;
-            print_stats(&intervals, &options.service);
+            print_stats(&intervals, format)?;
         }
     }
 
     Ok(())
 }
 
-fn print_stats(intervals: &VecDeque<u128>, service: &str) {
+fn print_stats(intervals: &VecDeque<u128>, format: Format) -> Result<()> {
     let n = intervals.len();
-    if n == 0 {
-        println!("[{}] no messages received", service);
-        return;
-    }
-
     let mean_ns = intervals.iter().sum::<u128>() as f64 / n as f64;
-    let rate = if mean_ns > 0.0 { 1e9 / mean_ns } else { 0.0 };
-
+    let rate_hz = if mean_ns > 0.0 { 1e9 / mean_ns } else { 0.0 };
     let min_ns = *intervals.iter().min().unwrap() as f64;
     let max_ns = *intervals.iter().max().unwrap() as f64;
-
     let variance = intervals
         .iter()
         .map(|&x| {
@@ -97,14 +100,15 @@ fn print_stats(intervals: &VecDeque<u128>, service: &str) {
         })
         .sum::<f64>()
         / n as f64;
-    let std_dev_ns = variance.sqrt();
 
-    println!(
-        "average rate: {:.3} Hz\n    min: {:.3}s  max: {:.3}s  std dev: {:.5}s  window: {}",
-        rate,
-        min_ns * 1e-9,
-        max_ns * 1e-9,
-        std_dev_ns * 1e-9,
-        n
-    );
+    let stats = HzStats {
+        rate_hz,
+        min_s: min_ns * 1e-9,
+        max_s: max_ns * 1e-9,
+        std_dev_s: variance.sqrt() * 1e-9,
+        window: n,
+    };
+
+    println!("{}", format.as_string(&stats)?);
+    Ok(())
 }

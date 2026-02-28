@@ -86,7 +86,7 @@ fn main() -> Result<()> {
                 }
             }
             Action::Hz(options) => {
-                if let Err(e) = command::hz(options) {
+                if let Err(e) = command::hz(options, cli.format) {
                     error!("failed to measure service frequency: {}", e);
                 }
             }
