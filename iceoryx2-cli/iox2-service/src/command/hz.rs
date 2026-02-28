@@ -55,12 +55,6 @@ pub(crate) fn hz(options: HzOptions, format: Format) -> Result<()> {
     let start = Instant::now();
 
     while node.wait(cycle_time).is_ok() {
-        if let Some(timeout) = options.timeout {
-            if start.elapsed().as_secs() >= timeout {
-                break;
-            }
-        }
-
         while let Some(_sample) = unsafe { subscriber.receive_custom_payload()? } {
             let now = Instant::now();
             if let Some(prev) = last_msg_time {
@@ -80,6 +74,12 @@ pub(crate) fn hz(options: HzOptions, format: Format) -> Result<()> {
             }
             last_printed_msg_time = last_msg_time;
             print_stats(&intervals, format)?;
+        }
+
+        if let Some(timeout) = options.timeout {
+            if start.elapsed().as_secs() >= timeout {
+                break;
+            }
         }
     }
 
