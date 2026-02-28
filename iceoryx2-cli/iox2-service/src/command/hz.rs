@@ -41,6 +41,7 @@ pub(crate) fn hz(options: HzOptions) -> Result<()> {
     let mut intervals: VecDeque<u128> = VecDeque::new();
     let mut last_msg_time: Option<Instant> = None;
     let mut last_print = Instant::now();
+    let mut last_printed_msg_time: Option<Instant> = None;
     let start = Instant::now();
 
     while node.wait(cycle_time).is_ok() {
@@ -64,6 +65,10 @@ pub(crate) fn hz(options: HzOptions) -> Result<()> {
 
         if last_print.elapsed() >= Duration::from_secs(1) {
             last_print = Instant::now();
+            if last_msg_time == last_printed_msg_time {
+                continue;
+            }
+            last_printed_msg_time = last_msg_time;
             print_stats(&intervals, &options.service);
         }
     }
