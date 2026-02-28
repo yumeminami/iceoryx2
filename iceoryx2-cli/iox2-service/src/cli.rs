@@ -388,8 +388,8 @@ pub struct HzOptions {
     #[clap(
         short,
         long,
-        default_value = "100",
-        help = "Rolling window size (number of intervals) used to compute statistics."
+        default_value = "10000",
+        help = "Rolling window size, in # of messages, for calculating rate (default: 10000)."
     )]
     pub window: usize,
     #[clap(
