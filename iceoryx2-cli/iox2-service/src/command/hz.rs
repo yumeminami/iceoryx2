@@ -88,6 +88,9 @@ pub(crate) fn hz(options: HzOptions, format: Format) -> Result<()> {
 
 fn print_stats(intervals: &VecDeque<u128>, format: Format) -> Result<()> {
     let n = intervals.len();
+    if n == 0 {
+        return Ok(());
+    }
     let mean_ns = intervals.iter().sum::<u128>() as f64 / n as f64;
     let rate_hz = if mean_ns > 0.0 { 1e9 / mean_ns } else { 0.0 };
     let min_ns = *intervals.iter().min().unwrap() as f64;
