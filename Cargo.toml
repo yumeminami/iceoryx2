@@ -50,6 +50,7 @@ members = [
     "iceoryx2-userland/record-and-replay",
 
     "iceoryx2-cli",
+    "iceoryx2-payload-gen",
 
     "examples",
 
@@ -119,6 +120,7 @@ iceoryx2-tunnel-backend = { version = "0.8.999", path = "iceoryx2-tunnel/backend
 iceoryx2-tunnel-conformance-tests = { version = "0.8.999", path = "iceoryx2-tunnel/conformance-tests" }
 iceoryx2-tunnel-zenoh = { version = "0.8.999", path = "iceoryx2-tunnel/zenoh" }
 iceoryx2-userland-record-and-replay = { version = "0.8.999", path = "iceoryx2-userland/record-and-replay" }
+iceoryx2-payload-gen = { version = "0.8.999", path = "iceoryx2-payload-gen" }
 
 anyhow = { version = "1.0.86" }
 bindgen = { version = "0.72.0" }

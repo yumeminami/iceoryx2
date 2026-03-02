@@ -1620,6 +1620,7 @@ dependencies = [
  "iceoryx2-log",
  "iceoryx2-pal-posix",
  "iceoryx2-pal-testing",
+ "iceoryx2-payload-gen",
  "iceoryx2-services-discovery",
  "iceoryx2-tunnel",
  "iceoryx2-tunnel-zenoh",
@@ -1753,6 +1754,13 @@ name = "iceoryx2-pal-testing"
 version = "0.8.999"
 dependencies = [
  "iceoryx2-pal-configuration",
+]
+
+[[package]]
+name = "iceoryx2-payload-gen"
+version = "0.8.999"
+dependencies = [
+ "anyhow",
 ]
 
 [[package]]

@@ -1,0 +1,13 @@
+[package]
+name = "iceoryx2-payload-gen"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Code generation library for iceoryx2 zero-copy payload types from ROS .msg files"
+
+[lib]
+name = "iceoryx2_payload_gen"
+path = "src/lib.rs"
+
+[dependencies]
+anyhow = { workspace = true }

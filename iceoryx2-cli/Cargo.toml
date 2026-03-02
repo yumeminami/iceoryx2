@@ -34,6 +34,10 @@ path = "iox2-config/src/main.rs"
 name = "iox2-tunnel"
 path = "iox2-tunnel/src/main.rs"
 
+[[bin]]
+name = "iox2-payload-gen"
+path = "iox2-payload-gen/src/main.rs"
+
 [lib]
 name = "iceoryx2_cli"
 path = "lib/src/lib.rs"
@@ -71,6 +75,7 @@ dirs = { workspace = true }
 dialoguer = { workspace = true }
 
 iceoryx2-tunnel = { workspace = true }
+iceoryx2-payload-gen = { workspace = true }
 # Zenoh does not build on FreeBSD
 [target.'cfg(not(target_os = "freebsd"))'.dependencies]
 iceoryx2-tunnel-zenoh = { workspace = true, optional = true }
