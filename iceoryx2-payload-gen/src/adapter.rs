@@ -44,26 +44,8 @@ pub fn adapt_str(source_name: &str, extension: &str, content: &str) -> anyhow::R
                 messages: vec![request, response],
             })
         }
-        "action" => {
-            let sections = split_sections(content);
-            if sections.len() != 3 {
-                return Err(anyhow::anyhow!(
-                    "action '{}' must contain exactly 3 sections separated by '---' (goal/result/feedback), got {}",
-                    source_name,
-                    sections.len()
-                ));
-            }
-
-            let goal = parser::parse_str(&format!("{source_name}_Goal"), &sections[0])?;
-            let result = parser::parse_str(&format!("{source_name}_Result"), &sections[1])?;
-            let feedback = parser::parse_str(&format!("{source_name}_Feedback"), &sections[2])?;
-            Ok(CanonicalIr {
-                source_name: source_name.to_string(),
-                messages: vec![goal, result, feedback],
-            })
-        }
         _ => Err(anyhow::anyhow!(
-            "unsupported interface extension '.{}' for '{}'; expected .msg, .srv or .action",
+            "unsupported interface extension '.{}' for '{}'; expected .msg or .srv",
             extension,
             source_name
         )),
@@ -107,20 +89,6 @@ mod tests {
         assert_eq!(ir.messages.len(), 2);
         assert_eq!(ir.messages[0].name, "AddTwoInts_Request");
         assert_eq!(ir.messages[1].name, "AddTwoInts_Response");
-    }
-
-    #[test]
-    fn adapts_action_into_goal_result_feedback() {
-        let ir = adapt_str(
-            "DoThing",
-            "action",
-            "int64 goal\n---\nbool ok\n---\nfloat32 progress\n",
-        )
-        .unwrap();
-        assert_eq!(ir.messages.len(), 3);
-        assert_eq!(ir.messages[0].name, "DoThing_Goal");
-        assert_eq!(ir.messages[1].name, "DoThing_Result");
-        assert_eq!(ir.messages[2].name, "DoThing_Feedback");
     }
 
     #[test]

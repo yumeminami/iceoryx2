@@ -37,7 +37,7 @@ pub struct Cli {
     #[arg(long, default_value = "")]
     pub service_prefix: String,
 
-    /// Input interface files (.msg/.srv/.action)
+    /// Input interface files (.msg/.srv)
     #[arg(required = true)]
     pub input: Vec<PathBuf>,
 }

@@ -2,7 +2,7 @@ use crate::ast::Message;
 
 /// Canonical intermediate representation consumed by generators.
 ///
-/// The adapter normalizes `.msg`, `.srv` and `.action` files into
+/// The adapter normalizes `.msg` and `.srv` files into
 /// one or multiple `Message` units.
 #[derive(Debug, Clone)]
 pub struct CanonicalIr {
