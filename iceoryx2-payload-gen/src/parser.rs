@@ -100,6 +100,7 @@ fn split_type_name(s: &str) -> Option<(&str, &str)> {
 fn parse_field_type(s: &str) -> anyhow::Result<FieldType> {
     if let Some(bracket) = s.find('[') {
         let type_str = &s[..bracket];
+        ensure_base_type(type_str)?;
         let rest = &s[bracket + 1..];
         let end = rest
             .find(']')
@@ -115,8 +116,9 @@ fn parse_field_type(s: &str) -> anyhow::Result<FieldType> {
         let n = n_str.parse::<usize>().map_err(|_| {
             anyhow::anyhow!("array bound '{n_str}' is not a valid positive integer")
         })?;
-        let prim =
-            parse_primitive(type_str).ok_or_else(|| anyhow::anyhow!("unknown primitive type"))?;
+        let prim = parse_primitive(type_str).ok_or_else(|| {
+            anyhow::anyhow!("only fixed-size arrays of primitive base types are supported")
+        })?;
         Ok(FieldType::FixedArray(prim, n))
     } else {
         if let Some(bound) = s.strip_prefix("string<=") {
@@ -134,10 +136,20 @@ fn parse_field_type(s: &str) -> anyhow::Result<FieldType> {
                 "unbounded 'string' is not zero-copy compatible; use 'string<=N'"
             ));
         }
+        ensure_base_type(s)?;
         Ok(FieldType::Primitive(parse_primitive(s).ok_or_else(
-            || anyhow::anyhow!("unknown primitive type"),
+            || anyhow::anyhow!("only primitive base types and bounded strings are supported"),
         )?))
     }
+}
+
+fn ensure_base_type(type_str: &str) -> anyhow::Result<()> {
+    if type_str.contains('/') || type_str.contains("::") {
+        return Err(anyhow::anyhow!(
+            "package-qualified type references are not supported"
+        ));
+    }
+    Ok(())
 }
 
 fn parse_primitive(s: &str) -> Option<PrimitiveType> {
@@ -230,5 +242,21 @@ mod tests {
     fn test_zero_bounded_string_is_rejected() {
         let err = parse_str("Msg", "string<=0 name\n").unwrap_err();
         assert!(err.to_string().contains("upper bound must be > 0"));
+    }
+
+    #[test]
+    fn test_package_qualified_type_is_rejected() {
+        let err = parse_str("Msg", "std_msgs/Header header\n").unwrap_err();
+        assert!(err
+            .to_string()
+            .contains("package-qualified type references are not supported"));
+    }
+
+    #[test]
+    fn test_nested_local_type_is_rejected() {
+        let err = parse_str("Msg", "Point position\n").unwrap_err();
+        assert!(err
+            .to_string()
+            .contains("only primitive base types and bounded strings are supported"));
     }
 }

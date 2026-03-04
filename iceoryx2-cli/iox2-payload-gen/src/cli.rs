@@ -29,7 +29,9 @@ pub struct Cli {
     #[arg(short, long)]
     pub lang: Lang,
 
-    /// Output directory
+    /// Output path:
+    /// - file input: file path or directory path
+    /// - directory input: directory path only
     #[arg(short, long, default_value = ".")]
     pub output: PathBuf,
 
@@ -37,7 +39,7 @@ pub struct Cli {
     #[arg(long, default_value = "")]
     pub service_prefix: String,
 
-    /// Input interface files (.msg/.srv)
+    /// Input interface file (.msg/.srv) or directory containing them
     #[arg(required = true)]
-    pub input: Vec<PathBuf>,
+    pub input: PathBuf,
 }
